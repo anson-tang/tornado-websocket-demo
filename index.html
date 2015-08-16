@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WebSockets Hello World</title>
+        <meta charset="utf-8">
+        <style type="type/css">
+            body {
+                text-align: center;
+                min-width: 500px;
+            }
+        </style>
+        <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script>
+
+            log = function(data){
+                $("div#terminal").prepend("</br>"+ data);
+                console.log(data);
+            };
+
+            $(document).ready(function () {
+                $("div#message_details").hide()
+
+                var ws;
+
+                $("#open").click(function(evt){
+                    evt.preventDefault();
+
+                    var host = $("#host").val();
+                    var port = $("#port").val();
+                    var uri = $("#uri").val();
+                    var uid = $("#uid").val();
+
+                    ws = new WebSocket("ws://" + host + ":" + port + uri + '?uid=' + uid);
+
+                    ws.onmessage = function(evt) {
+                        log("Message Received: " + evt.data)
+                        alert("Message received: " + evt.data);
+                    };
+
+                    ws.onclose  = function(evt){
+                        log("***Connection Closed***")
+                        alert("Connection close");
+                        $("#host").css("background", "#ff0000");
+                        $("#port").css("background", "#ff0000");
+                        $("#uri").css("background", "#ff0000");
+                        $("#uid").css("background", "#ff0000");
+                        $("div#message_details").empty();
+                     };
+
+                    ws.onopen = function(evt){
+                        $("#host").css("background", "#ff0000");
+                        $("#port").css("background", "#ff0000");
+                        $("#uri").css("background", "#ff0000");
+                        $("#uid").css("background", "#ff0000");
+                        $("div#message_details").show();
+                        log("***Connection Opened***");
+                    };
+                });
+                // send websocket message function
+                $("#send").click(function(evt){
+                    log("Sending Message: " + $("#message").val());
+                    ws.send('send:' + $("#message").val());
+                });
+                // send to all websocket message function
+                $("#sendtoall").click(function(evt){
+                    log("Sending To All Message: " + $("#message").val());
+                    ws.send('sendtoall:' + $("#message").val());
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <h1>WebSocket Hello World</h1>
+        <div id="connection_details">
+            <label for="host">host:</label>
+            <input type="text" id="host" value="localhost" style="background:#ff0000;"/><br />
+            <label for="port">port:</label>
+            <input type="text" id="port" value="8888" style="background:#ff0000;"/><br />
+            <label for="uri">uri:</label>
+            <input type="text" id="uri" value="/ws" style="background:#ff0000;"/><br />
+            <label for="uid">uid:</label>
+            <input type="text" id="uid" value="100" style="background:#ff0000;"/><br />
+            <input type="submit" id="open" value="open" />
+        </div>
+        <div id="message_details">
+            </br>
+            </br>
+            <label for="message">message:</label>
+            <input type="text" id="message" value="Hello World!"/><br />
+            <input type="submit" id="send" value="send" /><br />
+            <input type="submit" id="sendtoall" value="sendtoall" />
+        </div>
+        <div id="terminal">
+        </div>
+    </body>
+</html>
